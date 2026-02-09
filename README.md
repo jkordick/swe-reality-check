@@ -16,16 +16,6 @@ A TypeScript Express application with a Windows 95 themed frontend.
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | GET | `/api/health` | Health check |
-| GET | `/api/orders` | Get all orders |
-| POST | `/api/orders` | Create new order |
-| GET | `/api/orders/:id` | Get order by ID |
-| PUT | `/api/orders/:id` | Update order |
-| DELETE | `/api/orders/:id` | Delete order |
-| GET | `/api/users` | Get all users |
-| POST | `/api/users` | Create new user |
-| GET | `/api/users/:id` | Get user by ID |
-| PUT | `/api/users/:id` | Update user |
-| DELETE | `/api/users/:id` | Delete user |
 
 ## Development
 
@@ -65,15 +55,6 @@ npm start
 The app automatically deploys to GitHub Pages via GitHub Actions on push to `main`.
 
 When running on GitHub Pages, the app operates in demo mode with mock data stored in memory.
-
-### Full Backend Deployment
-
-For a full deployment with persistent data, deploy the Express server to:
-- Heroku
-- Railway
-- Render
-- Azure App Service
-- AWS Elastic Beanstalk
 
 ## Project Structure
 

@@ -1,0 +1,188 @@
+name: Documentation Check
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: ['**']
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  check-docs:
+    runs-on: ubuntu-latest
+    name: Check if documentation is up to date
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check API documentation
+        id: check-docs
+        run: |
+          echo "🔍 Checking if API documentation matches implementation..."
+          
+          # Extract endpoints from server.ts
+          echo "📦 Extracting endpoints from source code..."
+          
+          # Find all app.METHOD('/path' patterns
+          ENDPOINTS_IN_CODE=$(grep -oE "app\.(get|post|put|delete|patch)\s*\(\s*['\"][^'\"]+['\"]" src/server.ts | \
+            sed -E "s/app\.([a-z]+)\s*\(\s*['\"]([^'\"]+)['\"]/\U\1 \2/" | \
+            grep "^[A-Z]" | \
+            grep -v "^\*$" | \
+            sort -u)
+          
+          echo "Endpoints found in code:"
+          echo "$ENDPOINTS_IN_CODE"
+          echo ""
+          
+          # Extract endpoints from README.md
+          echo "📄 Extracting endpoints from README.md..."
+          
+          # Look for table rows with METHOD | /path format
+          ENDPOINTS_IN_DOCS=$(grep -oE "\|\s*(GET|POST|PUT|DELETE|PATCH)\s*\|\s*\`[^\`]+\`" README.md | \
+            sed -E "s/\|\s*([A-Z]+)\s*\|\s*\`([^\`]+)\`/\1 \2/" | \
+            sort -u)
+          
+          echo "Endpoints found in documentation:"
+          echo "$ENDPOINTS_IN_DOCS"
+          echo ""
+          
+          # Compare endpoints
+          echo "🔄 Comparing endpoints..."
+          
+          MISSING_FROM_DOCS=""
+          MISSING_FROM_CODE=""
+          
+          # Check for endpoints in code but not in docs
+          while IFS= read -r endpoint; do
+            if [ -n "$endpoint" ]; then
+              # Skip catch-all routes
+              if echo "$endpoint" | grep -qE "\*|\:"; then
+                # For parameterized routes, check if a similar pattern exists
+                PATTERN=$(echo "$endpoint" | sed 's/:id/:id/g')
+                if ! echo "$ENDPOINTS_IN_DOCS" | grep -qF "$PATTERN"; then
+                  MISSING_FROM_DOCS="$MISSING_FROM_DOCS$endpoint"$'\n'
+                fi
+              else
+                if ! echo "$ENDPOINTS_IN_DOCS" | grep -qF "$endpoint"; then
+                  MISSING_FROM_DOCS="$MISSING_FROM_DOCS$endpoint"$'\n'
+                fi
+              fi
+            fi
+          done <<< "$ENDPOINTS_IN_CODE"
+          
+          # Check for endpoints in docs but not in code
+          while IFS= read -r endpoint; do
+            if [ -n "$endpoint" ]; then
+              # For parameterized routes in docs, check against code
+              PATTERN=$(echo "$endpoint" | sed 's/:id/:[a-zA-Z]*/g')
+              if ! echo "$ENDPOINTS_IN_CODE" | grep -qE "$(echo "$endpoint" | sed 's/:id/:[a-zA-Z]*/g')"; then
+                MISSING_FROM_CODE="$MISSING_FROM_CODE$endpoint"$'\n'
+              fi
+            fi
+          done <<< "$ENDPOINTS_IN_DOCS"
+          
+          # Report results
+          HAS_ERRORS=0
+          ISSUE_BODY=""
+          
+          if [ -n "$MISSING_FROM_DOCS" ]; then
+            echo ""
+            echo "❌ Endpoints in code but NOT documented in README.md:"
+            echo "$MISSING_FROM_DOCS"
+            ISSUE_BODY="${ISSUE_BODY}## Endpoints in code but NOT documented in README.md\n\n\`\`\`\n${MISSING_FROM_DOCS}\`\`\`\n\n"
+            HAS_ERRORS=1
+          fi
+          
+          if [ -n "$MISSING_FROM_CODE" ]; then
+            echo ""
+            echo "❌ Endpoints documented in README.md but NOT found in code:"
+            echo "$MISSING_FROM_CODE"
+            ISSUE_BODY="${ISSUE_BODY}## Endpoints documented in README.md but NOT found in code\n\n\`\`\`\n${MISSING_FROM_CODE}\`\`\`\n\n"
+            HAS_ERRORS=1
+          fi
+          
+          # Save outputs for issue creation
+          echo "has_errors=$HAS_ERRORS" >> $GITHUB_OUTPUT
+          
+          # Use heredoc for multiline output
+          {
+            echo 'issue_body<<EOF'
+            echo -e "$ISSUE_BODY"
+            echo 'EOF'
+          } >> $GITHUB_OUTPUT
+          
+          if [ $HAS_ERRORS -eq 1 ]; then
+            echo ""
+            echo "💡 Please update the documentation to match the implementation."
+            # Don't exit 1 here - let the issue creation step run first
+          else
+            echo ""
+            echo "✅ Documentation is up to date with the implementation!"
+          fi
+
+      - name: Create GitHub Issue on failure
+        if: steps.check-docs.outputs.has_errors == '1'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE_TITLE="📚 Documentation out of sync with code"
+          
+          # Check if an open issue with this title already exists
+          EXISTING_ISSUE=$(gh issue list --state open --search "\"$ISSUE_TITLE\" in:title" --json number --jq '.[0].number')
+          
+          ISSUE_BODY="The API documentation in README.md does not match the implementation in the source code.
+
+          ${{ steps.check-docs.outputs.issue_body }}
+
+          ## Action Required
+          Please update the README.md to reflect the current API endpoints.
+
+          ---
+          *This issue was automatically created by the Documentation Check workflow.*
+          *Commit: ${{ github.sha }}*
+          *Branch: ${{ github.ref_name }}*"
+          
+          if [ -n "$EXISTING_ISSUE" ]; then
+            echo "Updating existing issue #$EXISTING_ISSUE"
+            gh issue comment "$EXISTING_ISSUE" --body "$ISSUE_BODY"
+          else
+            echo "Creating new issue"
+            gh issue create \
+              --title "$ISSUE_TITLE" \
+              --body "$ISSUE_BODY" \
+              --label "documentation"
+          fi
+
+      - name: Fail if documentation is out of sync
+        if: steps.check-docs.outputs.has_errors == '1'
+        run: |
+          echo "❌ Documentation check failed. A GitHub issue has been created."
+          exit 1
+
+      - name: Check for outdated dependencies documentation
+        run: |
+          echo "🔍 Checking dependencies documentation..."
+          
+          # This is a basic check - extend as needed
+          if grep -q "Prerequisites" README.md; then
+            echo "✅ Prerequisites section found in README"
+          else
+            echo "⚠️ Consider adding a Prerequisites section to README.md"
+          fi
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "## Documentation Check Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "This workflow verifies that the API documentation in README.md" >> $GITHUB_STEP_SUMMARY
+          echo "matches the actual endpoints implemented in the source code." >> $GITHUB_STEP_SUMMARY
