@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Win95 Express App</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="desktop">
+    <!-- Taskbar -->
+    <div class="taskbar">
+      <button class="start-button" onclick="toggleStartMenu()">
+        <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect fill='%23ff0000' x='2' y='2' width='9' height='9'/><rect fill='%2300ff00' x='13' y='2' width='9' height='9'/><rect fill='%230000ff' x='2' y='13' width='9' height='9'/><rect fill='%23ffff00' x='13' y='13' width='9' height='9'/></svg>" alt="" width="16" height="16">
+        Start
+      </button>
+      <div class="taskbar-apps" id="taskbar-apps"></div>
+      <div class="system-tray">
+        <span id="clock"></span>
+      </div>
+    </div>
+
+    <!-- Start Menu -->
+    <div class="start-menu" id="start-menu">
+      <div class="start-menu-header">
+        <span class="start-menu-title">Windows 95</span>
+      </div>
+      <div class="start-menu-items">
+        <div class="start-menu-item" onclick="openWindow('orders')">
+          📦 Orders Manager
+        </div>
+        <div class="start-menu-item" onclick="openWindow('users')">
+          👤 Users Manager
+        </div>
+        <div class="start-menu-item" onclick="openWindow('health')">
+          💚 System Health
+        </div>
+        <div class="start-menu-divider"></div>
+        <div class="start-menu-item" onclick="openWindow('about')">
+          ℹ️ About
+        </div>
+      </div>
+    </div>
+
+    <!-- Orders Window -->
+    <div class="window" id="window-orders" style="display: none; top: 50px; left: 50px;">
+      <div class="window-title" onmousedown="startDrag(event, 'window-orders')">
+        <span>📦 Orders Manager</span>
+        <div class="window-buttons">
+          <button class="window-btn minimize" onclick="minimizeWindow('orders')">_</button>
+          <button class="window-btn maximize" onclick="maximizeWindow('orders')">□</button>
+          <button class="window-btn close" onclick="closeWindow('orders')">×</button>
+        </div>
+      </div>
+      <div class="window-content">
+        <div class="toolbar">
+          <button class="toolbar-btn" onclick="refreshOrders()">🔄 Refresh</button>
+          <button class="toolbar-btn" onclick="showNewOrderForm()">➕ New Order</button>
+        </div>
+        
+        <div id="order-form" style="display: none;" class="form-panel">
+          <fieldset>
+            <legend>New Order</legend>
+            <div class="form-row">
+              <label>User:</label>
+              <select id="order-user" class="win95-input">
+                <option value="">-- Select User --</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label>Product:</label>
+              <input type="text" id="order-product" class="win95-input">
+            </div>
+            <div class="form-row">
+              <label>Quantity:</label>
+              <input type="number" id="order-quantity" class="win95-input" value="1">
+            </div>
+            <div class="form-row">
+              <label>Status:</label>
+              <select id="order-status" class="win95-input">
+                <option value="pending">Pending</option>
+                <option value="processing">Processing</option>
+                <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
+              </select>
+            </div>
+            <div class="form-buttons">
+              <button class="win95-btn" onclick="createOrder()">Save</button>
+              <button class="win95-btn" onclick="hideNewOrderForm()">Cancel</button>
+            </div>
+          </fieldset>
+        </div>
+
+        <div class="data-grid">
+          <table class="win95-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>User</th>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="orders-table-body">
+              <tr><td colspan="6" class="empty-message">No orders found. Click "New Order" to create one.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="window-statusbar">
+        <span id="orders-status">Ready</span>
+      </div>
+    </div>
+
+    <!-- Users Window -->
+    <div class="window" id="window-users" style="display: none; top: 80px; left: 100px;">
+      <div class="window-title" onmousedown="startDrag(event, 'window-users')">
+        <span>👤 Users Manager</span>
+        <div class="window-buttons">
+          <button class="window-btn minimize" onclick="minimizeWindow('users')">_</button>
+          <button class="window-btn maximize" onclick="maximizeWindow('users')">□</button>
+          <button class="window-btn close" onclick="closeWindow('users')">×</button>
+        </div>
+      </div>
+      <div class="window-content">
+        <div class="toolbar">
+          <button class="toolbar-btn" onclick="refreshUsers()">🔄 Refresh</button>
+          <button class="toolbar-btn" onclick="showNewUserForm()">➕ New User</button>
+        </div>
+        
+        <div id="user-form" style="display: none;" class="form-panel">
+          <fieldset>
+            <legend>New User</legend>
+            <div class="form-row">
+              <label>Name:</label>
+              <input type="text" id="user-name" class="win95-input">
+            </div>
+            <div class="form-row">
+              <label>Email:</label>
+              <input type="email" id="user-email" class="win95-input">
+            </div>
+            <div class="form-buttons">
+              <button class="win95-btn" onclick="createUser()">Save</button>
+              <button class="win95-btn" onclick="hideNewUserForm()">Cancel</button>
+            </div>
+          </fieldset>
+        </div>
+
+        <div class="data-grid">
+          <table class="win95-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="users-table-body">
+              <tr><td colspan="4" class="empty-message">No users found. Click "New User" to create one.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="window-statusbar">
+        <span id="users-status">Ready</span>
+      </div>
+    </div>
+
+    <!-- Health Window -->
+    <div class="window small-window" id="window-health" style="display: none; top: 110px; left: 150px;">
+      <div class="window-title" onmousedown="startDrag(event, 'window-health')">
+        <span>💚 System Health</span>
+        <div class="window-buttons">
+          <button class="window-btn minimize" onclick="minimizeWindow('health')">_</button>
+          <button class="window-btn close" onclick="closeWindow('health')">×</button>
+        </div>
+      </div>
+      <div class="window-content">
+        <div class="toolbar">
+          <button class="toolbar-btn" onclick="checkHealth()">🔄 Check Health</button>
+        </div>
+        <div class="health-panel" id="health-panel">
+          <div class="health-indicator" id="health-indicator">
+            <span class="health-icon">❓</span>
+            <span class="health-text">Click "Check Health" to check system status</span>
+          </div>
+          <div class="health-details" id="health-details"></div>
+        </div>
+      </div>
+      <div class="window-statusbar">
+        <span id="health-status">Ready</span>
+      </div>
+    </div>
+
+    <!-- About Window -->
+    <div class="window small-window" id="window-about" style="display: none; top: 140px; left: 200px;">
+      <div class="window-title" onmousedown="startDrag(event, 'window-about')">
+        <span>ℹ️ About</span>
+        <div class="window-buttons">
+          <button class="window-btn close" onclick="closeWindow('about')">×</button>
+        </div>
+      </div>
+      <div class="window-content about-content">
+        <div class="about-logo">
+          <div class="win-logo">
+            <div class="logo-square red"></div>
+            <div class="logo-square green"></div>
+            <div class="logo-square blue"></div>
+            <div class="logo-square yellow"></div>
+          </div>
+        </div>
+        <h2>Win95 Express App</h2>
+        <p>Version 1.0.0</p>
+        <p>A TypeScript Express application with a Windows 95 themed interface.</p>
+        <hr>
+        <p class="small">Built with Express.js & TypeScript</p>
+        <button class="win95-btn" onclick="closeWindow('about')">OK</button>
+      </div>
+    </div>
+
+    <!-- Desktop Icons -->
+    <div class="desktop-icons">
+      <div class="desktop-icon" ondblclick="openWindow('orders')">
+        <div class="icon">📦</div>
+        <span>Orders</span>
+      </div>
+      <div class="desktop-icon" ondblclick="openWindow('users')">
+        <div class="icon">👤</div>
+        <span>Users</span>
+      </div>
+      <div class="desktop-icon" ondblclick="openWindow('health')">
+        <div class="icon">💚</div>
+        <span>Health</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

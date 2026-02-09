@@ -1,0 +1,518 @@
+/* Win95 Theme CSS */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'MS Sans Serif', 'Segoe UI', Tahoma, sans-serif;
+  font-size: 11px;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* Desktop */
+.desktop {
+  width: 100vw;
+  height: 100vh;
+  background: #008080;
+  position: relative;
+}
+
+.desktop-icons {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.desktop-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 70px;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.desktop-icon:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.desktop-icon .icon {
+  font-size: 32px;
+  margin-bottom: 4px;
+}
+
+.desktop-icon span {
+  color: white;
+  text-shadow: 1px 1px 1px black;
+  text-align: center;
+  font-size: 11px;
+}
+
+/* Taskbar */
+.taskbar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 28px;
+  background: #c0c0c0;
+  border-top: 2px solid #ffffff;
+  display: flex;
+  align-items: center;
+  padding: 2px 4px;
+  z-index: 9999;
+}
+
+.start-button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  font-weight: bold;
+  font-size: 11px;
+  background: #c0c0c0;
+  border: 2px outset #ffffff;
+  cursor: pointer;
+}
+
+.start-button:active {
+  border: 2px inset #808080;
+}
+
+.start-button img {
+  width: 16px;
+  height: 16px;
+}
+
+.taskbar-apps {
+  flex: 1;
+  display: flex;
+  gap: 2px;
+  margin-left: 4px;
+}
+
+.taskbar-app {
+  padding: 2px 8px;
+  background: #c0c0c0;
+  border: 2px outset #ffffff;
+  font-size: 11px;
+  cursor: pointer;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.taskbar-app.active {
+  border: 2px inset #808080;
+  background: #dfdfdf;
+}
+
+.system-tray {
+  padding: 2px 8px;
+  background: #c0c0c0;
+  border: 2px inset #808080;
+  font-size: 11px;
+}
+
+/* Start Menu */
+.start-menu {
+  position: absolute;
+  bottom: 28px;
+  left: 0;
+  width: 200px;
+  background: #c0c0c0;
+  border: 2px outset #ffffff;
+  display: none;
+  z-index: 10000;
+}
+
+.start-menu.visible {
+  display: block;
+}
+
+.start-menu-header {
+  background: linear-gradient(to bottom, #000080, #1084d0);
+  color: white;
+  padding: 5px;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 24px;
+  font-weight: bold;
+  font-size: 18px;
+  letter-spacing: 2px;
+}
+
+.start-menu-items {
+  margin-left: 24px;
+  padding: 2px;
+}
+
+.start-menu-item {
+  padding: 6px 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.start-menu-item:hover {
+  background: #000080;
+  color: white;
+}
+
+.start-menu-divider {
+  height: 2px;
+  background: #808080;
+  border-bottom: 1px solid #ffffff;
+  margin: 2px 4px;
+}
+
+/* Window */
+.window {
+  position: absolute;
+  width: 500px;
+  min-height: 300px;
+  background: #c0c0c0;
+  border: 2px outset #ffffff;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+}
+
+.window.small-window {
+  width: 350px;
+  min-height: 200px;
+}
+
+.window.maximized {
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: calc(100vh - 28px) !important;
+}
+
+.window-title {
+  background: linear-gradient(to right, #000080, #1084d0);
+  color: white;
+  padding: 3px 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+  cursor: move;
+}
+
+.window-buttons {
+  display: flex;
+  gap: 2px;
+}
+
+.window-btn {
+  width: 16px;
+  height: 14px;
+  background: #c0c0c0;
+  border: 2px outset #ffffff;
+  font-size: 9px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+}
+
+.window-btn:active {
+  border: 2px inset #808080;
+}
+
+.window-btn.close {
+  color: #000;
+}
+
+.window-content {
+  flex: 1;
+  padding: 8px;
+  overflow: auto;
+  background: #c0c0c0;
+}
+
+.window-statusbar {
+  padding: 2px 4px;
+  background: #c0c0c0;
+  border-top: 2px inset #808080;
+  font-size: 11px;
+}
+
+/* Toolbar */
+.toolbar {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: #c0c0c0;
+  border-bottom: 2px inset #808080;
+  margin-bottom: 8px;
+}
+
+.toolbar-btn {
+  padding: 4px 8px;
+  background: #c0c0c0;
+  border: 2px outset #ffffff;
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.toolbar-btn:hover {
+  background: #d4d4d4;
+}
+
+.toolbar-btn:active {
+  border: 2px inset #808080;
+}
+
+/* Form elements */
+.form-panel {
+  margin-bottom: 10px;
+}
+
+fieldset {
+  border: 2px groove #ffffff;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+legend {
+  padding: 0 4px;
+  font-weight: bold;
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.form-row label {
+  width: 80px;
+  text-align: right;
+  padding-right: 8px;
+}
+
+.win95-input {
+  flex: 1;
+  padding: 3px;
+  border: 2px inset #808080;
+  background: white;
+  font-family: inherit;
+  font-size: 11px;
+}
+
+.win95-input:focus {
+  outline: none;
+}
+
+.form-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.win95-btn {
+  padding: 4px 16px;
+  background: #c0c0c0;
+  border: 2px outset #ffffff;
+  cursor: pointer;
+  font-size: 11px;
+  min-width: 75px;
+}
+
+.win95-btn:hover {
+  background: #d4d4d4;
+}
+
+.win95-btn:active {
+  border: 2px inset #808080;
+}
+
+/* Table */
+.data-grid {
+  border: 2px inset #808080;
+  background: white;
+  overflow: auto;
+  max-height: 200px;
+}
+
+.win95-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+
+.win95-table th {
+  background: #c0c0c0;
+  border: 1px solid #808080;
+  padding: 3px 6px;
+  text-align: left;
+  position: sticky;
+  top: 0;
+}
+
+.win95-table td {
+  border: 1px solid #c0c0c0;
+  padding: 3px 6px;
+}
+
+.win95-table tr:hover {
+  background: #000080;
+  color: white;
+}
+
+.win95-table .empty-message {
+  text-align: center;
+  color: #808080;
+  font-style: italic;
+}
+
+.win95-table .empty-message:hover {
+  background: white;
+  color: #808080;
+}
+
+.action-btn {
+  padding: 1px 6px;
+  background: #c0c0c0;
+  border: 1px outset #ffffff;
+  cursor: pointer;
+  font-size: 10px;
+  margin-right: 2px;
+}
+
+.action-btn:active {
+  border: 1px inset #808080;
+}
+
+/* Health Panel */
+.health-panel {
+  padding: 10px;
+  text-align: center;
+}
+
+.health-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px;
+}
+
+.health-icon {
+  font-size: 48px;
+}
+
+.health-text {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.health-details {
+  margin-top: 10px;
+  text-align: left;
+  padding: 10px;
+  background: white;
+  border: 2px inset #808080;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  white-space: pre;
+}
+
+.health-details:empty {
+  display: none;
+}
+
+/* About Window */
+.about-content {
+  text-align: center;
+  padding: 20px;
+}
+
+.about-logo {
+  margin-bottom: 15px;
+}
+
+.win-logo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 60px;
+  height: 60px;
+  margin: 0 auto;
+  gap: 4px;
+}
+
+.logo-square {
+  width: 100%;
+  height: 100%;
+}
+
+.logo-square.red { background: #ff0000; }
+.logo-square.green { background: #00ff00; }
+.logo-square.blue { background: #0000ff; }
+.logo-square.yellow { background: #ffff00; }
+
+.about-content h2 {
+  margin-bottom: 5px;
+}
+
+.about-content p {
+  margin-bottom: 10px;
+}
+
+.about-content hr {
+  border: none;
+  border-top: 1px solid #808080;
+  border-bottom: 1px solid #ffffff;
+  margin: 15px 0;
+}
+
+.about-content .small {
+  font-size: 10px;
+  color: #808080;
+}
+
+/* Status colors */
+.status-pending { color: #808000; }
+.status-processing { color: #0000ff; }
+.status-shipped { color: #008000; }
+.status-delivered { color: #008000; font-weight: bold; }
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+
+::-webkit-scrollbar-track {
+  background: #c0c0c0;
+  border: 1px inset #808080;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c0c0c0;
+  border: 2px outset #ffffff;
+}
+
+::-webkit-scrollbar-button {
+  background: #c0c0c0;
+  border: 2px outset #ffffff;
+}

@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+_site/
+
+# Ignore Mac system files
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+
+slides.md
+tp.md
