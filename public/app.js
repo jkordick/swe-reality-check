@@ -9,8 +9,21 @@ const API_BASE = window.location.hostname === 'localhost' || window.location.hos
 const MOCK_MODE = !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1');
 
 // Mock data storage (for GitHub Pages demo)
-let mockOrders = [];
-let mockUsers = [];
+let mockOrders = [
+  { id: 'ORD-1001', userId: 'USR-1001', product: 'Microsoft Windows 95', quantity: 3, status: 'delivered', createdAt: '2026-01-15' },
+  { id: 'ORD-1002', userId: 'USR-1001', product: 'Mechanical Keyboard', quantity: 1, status: 'shipped', createdAt: '2026-02-01' },
+  { id: 'ORD-1003', userId: 'USR-1002', product: 'USB-C Hub', quantity: 2, status: 'processing', createdAt: '2026-02-05' },
+  { id: 'ORD-1004', userId: 'USR-1003', product: '4K Monitor', quantity: 1, status: 'pending', createdAt: '2026-02-08' },
+  { id: 'ORD-1005', userId: 'USR-1002', product: 'Wireless Mouse', quantity: 5, status: 'pending', createdAt: '2026-02-09' },
+];
+
+let mockUsers = [
+  { id: 'USR-1001', name: 'Ada Lovelace', email: 'ada@computing.org', createdAt: '2026-01-01' },
+  { id: 'USR-1002', name: 'Grace Hopper', email: 'grace@navy.mil', createdAt: '2026-01-10' },
+  { id: 'USR-1003', name: 'Margaret Hamilton', email: 'margaret@nasa.gov', createdAt: '2026-01-20' },
+  { id: 'USR-1004', name: 'Katherine Johnson', email: 'katherine@nasa.gov', createdAt: '2026-02-01' },
+  { id: 'USR-1005', name: 'Hedy Lamarr', email: 'hedy@invention.org', createdAt: '2026-02-05' },
+];
 
 // Cache for users (used in order forms)
 let usersCache = [];
