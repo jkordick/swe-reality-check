@@ -164,20 +164,12 @@ jobs:
             gh issue comment "$EXISTING_ISSUE" --body-file /tmp/issue_body.md
             # Re-assign to latest committer
             gh issue edit "$EXISTING_ISSUE" --add-assignee "$COMMIT_AUTHOR" || echo "Warning: Could not assign user"
-            # Invoke Copilot to work on the issue
-            gh issue comment "$EXISTING_ISSUE" --body "@copilot please fix this documentation issue"
           else
             echo "Creating new issue and assigning to $COMMIT_AUTHOR"
-            ISSUE_URL=$(gh issue create \
+            gh issue create \
               --title "$ISSUE_TITLE" \
               --body-file /tmp/issue_body.md \
-              --assignee "$COMMIT_AUTHOR") || echo "Warning: Could not create issue"
-            
-            if [ -n "$ISSUE_URL" ]; then
-              # Extract issue number from URL and invoke Copilot
-              ISSUE_NUM=$(echo "$ISSUE_URL" | grep -oE '[0-9]+$')
-              gh issue comment "$ISSUE_NUM" --body "@copilot please fix this documentation issue"
-            fi
+              --assignee "$COMMIT_AUTHOR" || echo "Warning: Could not create issue"
           fi
 
       - name: Check for outdated dependencies documentation
