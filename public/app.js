@@ -6,7 +6,10 @@ const API_BASE = window.location.hostname === 'localhost' || window.location.hos
   : ''; // For static deployment, we'll use mock data
 
 // Mock mode for GitHub Pages (static deployment)
-const MOCK_MODE = !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1');
+// True when NOT running locally (e.g., on github.io)
+const MOCK_MODE = !(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+console.log('🖥️ Win95 App - MOCK_MODE:', MOCK_MODE, 'hostname:', window.location.hostname);
 
 // Mock data storage (for GitHub Pages demo)
 let mockOrders = [
@@ -189,6 +192,7 @@ async function apiCall(method, endpoint, data = null) {
 
 // Mock API for static deployment
 function mockApiCall(method, endpoint, data) {
+  console.log('🔧 Mock API:', method, endpoint);
   return new Promise((resolve) => {
     setTimeout(() => {
       // Health
@@ -205,7 +209,9 @@ function mockApiCall(method, endpoint, data) {
       // Orders
       if (endpoint === '/api/orders') {
         if (method === 'GET') {
+          console.log('📦 Returning orders:', mockOrders.length);
           resolve({ orders: mockOrders });
+          return;
         } else if (method === 'POST') {
           const order = {
             id: `ORD-${Date.now()}`,
@@ -214,8 +220,8 @@ function mockApiCall(method, endpoint, data) {
           };
           mockOrders.push(order);
           resolve({ order });
+          return;
         }
-        return;
       }
       
       if (endpoint.startsWith('/api/orders/')) {
@@ -229,14 +235,16 @@ function mockApiCall(method, endpoint, data) {
           } else {
             resolve({ error: 'Not found' });
           }
+          return;
         }
-        return;
       }
       
       // Users
       if (endpoint === '/api/users') {
         if (method === 'GET') {
+          console.log('👤 Returning users:', mockUsers.length);
           resolve({ users: mockUsers });
+          return;
         } else if (method === 'POST') {
           const user = {
             id: `USR-${Date.now()}`,
@@ -245,8 +253,8 @@ function mockApiCall(method, endpoint, data) {
           };
           mockUsers.push(user);
           resolve({ user });
+          return;
         }
-        return;
       }
       
       if (endpoint.startsWith('/api/users/')) {
@@ -260,8 +268,8 @@ function mockApiCall(method, endpoint, data) {
           } else {
             resolve({ error: 'Not found' });
           }
+          return;
         }
-        return;
       }
       
       resolve({ error: 'Unknown endpoint' });
