@@ -134,37 +134,34 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_BODY_CONTENT: ${{ steps.check-docs.outputs.issue_body }}
+          COMMIT_SHA: ${{ github.sha }}
+          BRANCH_NAME: ${{ github.ref_name }}
         run: |
           ISSUE_TITLE="📚 Documentation out of sync with code"
           
           # Check if an open issue with this title already exists
           EXISTING_ISSUE=$(gh issue list --state open --search "Documentation out of sync" --json number --jq '.[0].number' 2>/dev/null || echo "")
           
-          # Create issue body using heredoc to handle multiline content
-          cat > /tmp/issue_body.md << 'ISSUE_EOF'
-          The API documentation in README.md does not match the implementation in the source code.
-
-          ISSUE_EOF
-          
-          echo "$ISSUE_BODY_CONTENT" >> /tmp/issue_body.md
-          
-          cat >> /tmp/issue_body.md << ISSUE_EOF
-
-          ## Action Required
-          Please update the README.md to reflect the current API endpoints.
-
-          ---
-          *This issue was automatically created by the Documentation Check workflow.*
-          *Commit: ${{ github.sha }}*
-          *Branch: ${{ github.ref_name }}*
-          ISSUE_EOF
+          # Create issue body using echo statements
+          {
+            echo "The API documentation in README.md does not match the implementation in the source code."
+            echo ""
+            echo "$ISSUE_BODY_CONTENT"
+            echo ""
+            echo "## Action Required"
+            echo "Please update the README.md to reflect the current API endpoints."
+            echo ""
+            echo "---"
+            echo "*This issue was automatically created by the Documentation Check workflow.*"
+            echo "*Commit: ${COMMIT_SHA}*"
+            echo "*Branch: ${BRANCH_NAME}*"
+          } > /tmp/issue_body.md
           
           if [ -n "$EXISTING_ISSUE" ] && [ "$EXISTING_ISSUE" != "null" ]; then
             echo "Updating existing issue #$EXISTING_ISSUE"
             gh issue comment "$EXISTING_ISSUE" --body-file /tmp/issue_body.md
           else
             echo "Creating new issue"
-            # Create issue without label (label may not exist)
             gh issue create \
               --title "$ISSUE_TITLE" \
               --body-file /tmp/issue_body.md || echo "Warning: Could not create issue"
