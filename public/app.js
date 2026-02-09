@@ -1,5 +1,59 @@
 // Win95 Express App - Frontend JavaScript
 
+// In-app notification system
+function showNotification(message, type = 'info') {
+  const container = document.getElementById('notification-container') || createNotificationContainer();
+  const notification = document.createElement('div');
+  notification.className = `win95-notification ${type}`;
+  notification.innerHTML = `
+    <span class="notification-icon">${type === 'error' ? '⚠️' : type === 'success' ? '✅' : 'ℹ️'}</span>
+    <span class="notification-message">${message}</span>
+    <button class="notification-close" onclick="this.parentElement.remove()">×</button>
+  `;
+  container.appendChild(notification);
+  setTimeout(() => notification.remove(), 4000);
+}
+
+function createNotificationContainer() {
+  const container = document.createElement('div');
+  container.id = 'notification-container';
+  document.body.appendChild(container);
+  return container;
+}
+
+// Custom confirm dialog
+function showConfirmDialog(message) {
+  return new Promise((resolve) => {
+    const overlay = document.createElement('div');
+    overlay.className = 'win95-dialog-overlay';
+    overlay.innerHTML = `
+      <div class="win95-dialog">
+        <div class="window-title">
+          <span>Confirm</span>
+        </div>
+        <div class="dialog-content">
+          <span class="dialog-icon">❓</span>
+          <p>${message}</p>
+        </div>
+        <div class="dialog-buttons">
+          <button class="win95-btn" id="dialog-ok">OK</button>
+          <button class="win95-btn" id="dialog-cancel">Cancel</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    
+    overlay.querySelector('#dialog-ok').onclick = () => {
+      overlay.remove();
+      resolve(true);
+    };
+    overlay.querySelector('#dialog-cancel').onclick = () => {
+      overlay.remove();
+      resolve(false);
+    };
+  });
+}
+
 // API Base URL - adjust based on environment
 const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? '' 
@@ -345,7 +399,7 @@ async function createOrder() {
   const status = document.getElementById('order-status').value;
   
   if (!userId || !product || !quantity) {
-    alert('Please fill in all fields');
+    showNotification('Please fill in all fields', 'error');
     return;
   }
   
@@ -358,7 +412,8 @@ async function createOrder() {
 }
 
 async function deleteOrder(id) {
-  if (confirm('Are you sure you want to delete this order?')) {
+  const confirmed = await showConfirmDialog('Are you sure you want to delete this order?');
+  if (confirmed) {
     const statusEl = document.getElementById('orders-status');
     statusEl.textContent = 'Deleting order...';
     await apiCall('DELETE', `/api/orders/${id}`);
@@ -407,7 +462,7 @@ async function createUser() {
   const email = document.getElementById('user-email').value;
   
   if (!name || !email) {
-    alert('Please fill in all fields');
+    showNotification('Please fill in all fields', 'error');
     return;
   }
   
@@ -420,7 +475,8 @@ async function createUser() {
 }
 
 async function deleteUser(id) {
-  if (confirm('Are you sure you want to delete this user?')) {
+  const confirmed = await showConfirmDialog('Are you sure you want to delete this user?');
+  if (confirmed) {
     const statusEl = document.getElementById('users-status');
     statusEl.textContent = 'Deleting user...';
     await apiCall('DELETE', `/api/users/${id}`);

@@ -516,3 +516,123 @@ legend {
   background: #c0c0c0;
   border: 2px outset #ffffff;
 }
+
+/* In-app notifications */
+#notification-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.win95-notification {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #c0c0c0;
+  border: 2px outset #ffffff;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.3s ease-out;
+  min-width: 250px;
+}
+
+.win95-notification.error {
+  border-left: 4px solid #ff0000;
+}
+
+.win95-notification.success {
+  border-left: 4px solid #00ff00;
+}
+
+.win95-notification.info {
+  border-left: 4px solid #0000ff;
+}
+
+.notification-icon {
+  font-size: 16px;
+}
+
+.notification-message {
+  flex: 1;
+  font-size: 11px;
+}
+
+.notification-close {
+  background: #c0c0c0;
+  border: 1px outset #ffffff;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0 4px;
+  line-height: 1;
+}
+
+.notification-close:active {
+  border: 1px inset #808080;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Custom confirm dialog */
+.win95-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100000;
+}
+
+.win95-dialog {
+  background: #c0c0c0;
+  border: 2px outset #ffffff;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.4);
+  min-width: 300px;
+}
+
+.win95-dialog .window-title {
+  background: linear-gradient(to right, #000080, #1084d0);
+  color: white;
+  padding: 3px 6px;
+  font-weight: bold;
+}
+
+.dialog-content {
+  padding: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+}
+
+.dialog-icon {
+  font-size: 32px;
+}
+
+.dialog-content p {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.dialog-buttons {
+  padding: 10px 20px 15px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
