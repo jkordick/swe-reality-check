@@ -162,14 +162,15 @@ jobs:
           if [ -n "$EXISTING_ISSUE" ] && [ "$EXISTING_ISSUE" != "null" ]; then
             echo "Updating existing issue #$EXISTING_ISSUE"
             gh issue comment "$EXISTING_ISSUE" --body-file /tmp/issue_body.md
-            # Re-assign to latest committer
-            gh issue edit "$EXISTING_ISSUE" --add-assignee "$COMMIT_AUTHOR" || echo "Warning: Could not assign user"
+            # Re-assign to latest committer and Copilot
+            gh issue edit "$EXISTING_ISSUE" --add-assignee "$COMMIT_AUTHOR" --add-assignee "Copilot" || echo "Warning: Could not assign user"
           else
-            echo "Creating new issue and assigning to $COMMIT_AUTHOR"
+            echo "Creating new issue and assigning to $COMMIT_AUTHOR and Copilot"
             gh issue create \
               --title "$ISSUE_TITLE" \
               --body-file /tmp/issue_body.md \
-              --assignee "$COMMIT_AUTHOR" || echo "Warning: Could not create issue"
+              --assignee "$COMMIT_AUTHOR" \
+              --assignee "Copilot" || echo "Warning: Could not create issue"
           fi
 
       - name: Check for outdated dependencies documentation
