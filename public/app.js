@@ -1,5 +1,19 @@
 // Win95 Express App - Frontend JavaScript
 
+// Notification history storage
+let notificationHistory = [];
+let unreadNotificationCount = 0;
+
+// Order status progression
+const STATUS_ORDER = ['pending', 'processing', 'shipped', 'delivered'];
+const STATUS_ICONS = {
+  pending: '⏳',
+  processing: '⚙️',
+  shipped: '🚚',
+  delivered: '✅',
+  error: '❌'
+};
+
 // In-app notification system
 function showNotification(message, type = 'info') {
   const container = document.getElementById('notification-container') || createNotificationContainer();
@@ -20,6 +34,226 @@ function createNotificationContainer() {
   document.body.appendChild(container);
   return container;
 }
+
+// Order Status Notification System (Win95 style popup)
+function showOrderStatusNotification(orderId, product, oldStatus, newStatus, isError = false) {
+  const container = document.getElementById('notification-container') || createNotificationContainer();
+  
+  const popup = document.createElement('div');
+  popup.className = 'order-notification-popup';
+  
+  const icon = isError ? STATUS_ICONS.error : STATUS_ICONS[newStatus] || '📦';
+  const title = isError ? 'Order Update Failed' : 'Order Status Changed';
+  const headerBg = isError ? 'linear-gradient(to right, #800000, #d01010)' : 'linear-gradient(to right, #000080, #1084d0)';
+  
+  popup.innerHTML = `
+    <div class="popup-header" style="background: ${headerBg}">
+      <span>${title}</span>
+      <button class="win95-btn" style="padding: 0 4px; min-width: auto; font-size: 10px;" onclick="this.closest('.order-notification-popup').remove()">×</button>
+    </div>
+    <div class="popup-content">
+      <div class="popup-icon">${icon}</div>
+      <div class="popup-details">
+        <div class="popup-title">${orderId}</div>
+        <div class="popup-message">${product}</div>
+        ${!isError ? `
+        <div class="popup-status-change">
+          <span class="status-${oldStatus}">${oldStatus}</span>
+          <span class="status-arrow">→</span>
+          <span class="status-${newStatus}">${newStatus}</span>
+        </div>
+        ` : '<div class="popup-message" style="color: #800000;">Failed to update order status</div>'}
+      </div>
+    </div>
+    <div class="popup-footer">
+      <button class="win95-btn" onclick="this.closest('.order-notification-popup').remove()">OK</button>
+    </div>
+  `;
+  
+  container.appendChild(popup);
+  
+  // Add to notification history
+  addToNotificationHistory({
+    type: isError ? 'error' : 'status-change',
+    orderId,
+    product,
+    oldStatus,
+    newStatus,
+    timestamp: new Date()
+  });
+  
+  // Auto-dismiss after 6 seconds
+  setTimeout(() => {
+    if (popup.parentElement) {
+      popup.classList.add('removing');
+      setTimeout(() => popup.remove(), 300);
+    }
+  }, 6000);
+}
+
+// Show notification for order creation
+function showOrderCreatedNotification(orderId, product) {
+  const container = document.getElementById('notification-container') || createNotificationContainer();
+  
+  const popup = document.createElement('div');
+  popup.className = 'order-notification-popup';
+  
+  popup.innerHTML = `
+    <div class="popup-header">
+      <span>New Order Created</span>
+      <button class="win95-btn" style="padding: 0 4px; min-width: auto; font-size: 10px;" onclick="this.closest('.order-notification-popup').remove()">×</button>
+    </div>
+    <div class="popup-content">
+      <div class="popup-icon">📦</div>
+      <div class="popup-details">
+        <div class="popup-title">${orderId}</div>
+        <div class="popup-message">${product}</div>
+        <div class="popup-status-change">
+          <span class="status-pending">pending</span>
+        </div>
+      </div>
+    </div>
+    <div class="popup-footer">
+      <button class="win95-btn" onclick="this.closest('.order-notification-popup').remove()">OK</button>
+    </div>
+  `;
+  
+  container.appendChild(popup);
+  
+  addToNotificationHistory({
+    type: 'created',
+    orderId,
+    product,
+    timestamp: new Date()
+  });
+  
+  setTimeout(() => {
+    if (popup.parentElement) {
+      popup.classList.add('removing');
+      setTimeout(() => popup.remove(), 300);
+    }
+  }, 5000);
+}
+
+// Show notification for order deletion
+function showOrderDeletedNotification(orderId, success = true) {
+  const type = success ? 'success' : 'error';
+  const message = success 
+    ? `Order ${orderId} has been deleted successfully` 
+    : `Failed to delete order ${orderId}`;
+  
+  showNotification(message, type);
+  
+  addToNotificationHistory({
+    type: success ? 'deleted' : 'error',
+    orderId,
+    message: success ? 'Order deleted' : 'Delete failed',
+    timestamp: new Date()
+  });
+}
+
+// Notification History Management
+function addToNotificationHistory(notification) {
+  notificationHistory.unshift(notification);
+  unreadNotificationCount++;
+  
+  // Keep only last 50 notifications
+  if (notificationHistory.length > 50) {
+    notificationHistory.pop();
+  }
+  
+  updateNotificationIndicator();
+  updateNotificationHistoryPanel();
+}
+
+function updateNotificationIndicator() {
+  const indicator = document.getElementById('notification-indicator');
+  const badge = document.getElementById('notification-badge');
+  
+  if (indicator && badge) {
+    badge.textContent = unreadNotificationCount > 99 ? '99+' : unreadNotificationCount;
+    
+    if (unreadNotificationCount > 0) {
+      indicator.classList.add('has-notifications');
+    } else {
+      indicator.classList.remove('has-notifications');
+    }
+  }
+}
+
+function toggleNotificationHistory() {
+  const panel = document.getElementById('notification-history');
+  if (panel) {
+    panel.classList.toggle('visible');
+    
+    // Mark all as read when panel is opened
+    if (panel.classList.contains('visible')) {
+      unreadNotificationCount = 0;
+      updateNotificationIndicator();
+      updateNotificationHistoryPanel();
+    }
+  }
+}
+
+function updateNotificationHistoryPanel() {
+  const content = document.getElementById('notification-history-content');
+  if (!content) return;
+  
+  if (notificationHistory.length === 0) {
+    content.innerHTML = '<div class="notification-history-empty">No notifications yet</div>';
+    return;
+  }
+  
+  content.innerHTML = notificationHistory.map((n, index) => {
+    const time = new Date(n.timestamp).toLocaleTimeString();
+    const typeLabel = n.type === 'status-change' ? 'Status Change' 
+      : n.type === 'created' ? 'Order Created'
+      : n.type === 'deleted' ? 'Order Deleted'
+      : 'Error';
+    const icon = n.type === 'error' ? '❌' 
+      : n.type === 'created' ? '📦'
+      : n.type === 'deleted' ? '🗑️'
+      : '🔄';
+    
+    let message = '';
+    if (n.type === 'status-change') {
+      message = `${n.orderId}: ${n.oldStatus} → ${n.newStatus}`;
+    } else if (n.type === 'created') {
+      message = `${n.orderId}: ${n.product}`;
+    } else if (n.type === 'deleted') {
+      message = n.orderId;
+    } else {
+      message = n.message || n.orderId;
+    }
+    
+    return `
+      <div class="notification-history-item ${index < unreadNotificationCount ? 'unread' : ''}">
+        <div class="item-header">
+          <span class="item-type">${icon} ${typeLabel}</span>
+          <span class="item-time">${time}</span>
+        </div>
+        <div class="item-message">${message}</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function clearNotificationHistory() {
+  notificationHistory = [];
+  unreadNotificationCount = 0;
+  updateNotificationIndicator();
+  updateNotificationHistoryPanel();
+  toggleNotificationHistory();
+}
+
+// Close notification history when clicking elsewhere
+document.addEventListener('click', (e) => {
+  const panel = document.getElementById('notification-history');
+  const indicator = document.getElementById('notification-indicator');
+  if (panel && indicator && !panel.contains(e.target) && !indicator.contains(e.target)) {
+    panel.classList.remove('visible');
+  }
+});
 
 // Custom confirm dialog
 function showConfirmDialog(message) {
@@ -282,6 +516,16 @@ function mockApiCall(method, endpoint, data) {
         const id = endpoint.split('/').pop();
         const index = mockOrders.findIndex(o => o.id === id);
         
+        if (method === 'PUT') {
+          if (index !== -1) {
+            mockOrders[index] = { ...mockOrders[index], ...data };
+            resolve({ order: mockOrders[index] });
+          } else {
+            resolve({ error: 'Not found' });
+          }
+          return;
+        }
+        
         if (method === 'DELETE') {
           if (index !== -1) {
             mockOrders.splice(index, 1);
@@ -349,6 +593,8 @@ async function refreshOrders() {
     tbody.innerHTML = result.orders.map(order => {
       const user = usersCache.find(u => u.id === order.userId);
       const userName = user ? user.name : order.userId || 'Unknown';
+      const nextStatus = getNextStatus(order.status);
+      const canProgress = nextStatus !== null;
       return `
       <tr>
         <td>${order.id}</td>
@@ -357,6 +603,7 @@ async function refreshOrders() {
         <td>${order.quantity}</td>
         <td><span class="status-${order.status}">${order.status}</span></td>
         <td>
+          ${canProgress ? `<button class="action-btn" onclick="updateOrderStatus('${order.id}', '${order.product}', '${order.status}', '${nextStatus}')" title="Advance to ${nextStatus}">⏩</button>` : ''}
           <button class="action-btn" onclick="deleteOrder('${order.id}')">🗑️</button>
         </td>
       </tr>
@@ -406,7 +653,14 @@ async function createOrder() {
   const statusEl = document.getElementById('orders-status');
   statusEl.textContent = 'Creating order...';
   
-  await apiCall('POST', '/api/orders', { userId, product, quantity: Number(quantity), status });
+  const result = await apiCall('POST', '/api/orders', { userId, product, quantity: Number(quantity), status });
+  
+  if (result.order) {
+    showOrderCreatedNotification(result.order.id, product);
+  } else if (result.error) {
+    showNotification('Failed to create order: ' + result.error, 'error');
+  }
+  
   hideNewOrderForm();
   await refreshOrders();
 }
@@ -416,9 +670,35 @@ async function deleteOrder(id) {
   if (confirmed) {
     const statusEl = document.getElementById('orders-status');
     statusEl.textContent = 'Deleting order...';
-    await apiCall('DELETE', `/api/orders/${id}`);
+    const result = await apiCall('DELETE', `/api/orders/${id}`);
+    showOrderDeletedNotification(id, !result.error);
     await refreshOrders();
   }
+}
+
+// Get next status in progression
+function getNextStatus(currentStatus) {
+  const currentIndex = STATUS_ORDER.indexOf(currentStatus);
+  if (currentIndex === -1 || currentIndex >= STATUS_ORDER.length - 1) {
+    return null; // Already at final status or unknown status
+  }
+  return STATUS_ORDER[currentIndex + 1];
+}
+
+// Update order status
+async function updateOrderStatus(orderId, product, currentStatus, newStatus) {
+  const statusEl = document.getElementById('orders-status');
+  statusEl.textContent = 'Updating order status...';
+  
+  const result = await apiCall('PUT', `/api/orders/${orderId}`, { status: newStatus });
+  
+  if (result.error) {
+    showOrderStatusNotification(orderId, product, currentStatus, newStatus, true);
+  } else {
+    showOrderStatusNotification(orderId, product, currentStatus, newStatus, false);
+  }
+  
+  await refreshOrders();
 }
 
 // Users Functions
