@@ -11,6 +11,3 @@ _site/
 # Logs
 *.log
 npm-debug.log*
-
-slides.md
-tp.md
