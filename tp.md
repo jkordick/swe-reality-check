@@ -22,6 +22,7 @@
 - when your organizations does not have a fundamental understanding about real problems of developers, there is no engineering culture, no enablement, no change management, no guardrails, and no clear definition of what "productivity" means, then you are in a feedback loop from hell
 
 - but how does the reality of software development look like?
+- what are the core use cases?
 
 # DEMO
 
