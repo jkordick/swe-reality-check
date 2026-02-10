@@ -692,7 +692,7 @@ async function refreshOrders() {
   const tbody = document.getElementById('orders-table-body');
   
   // Clear existing rows
-  tbody.innerHTML = '';
+  tbody.replaceChildren();
   
   if (result.orders && result.orders.length > 0) {
     result.orders.forEach(order => {
