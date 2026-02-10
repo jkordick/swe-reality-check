@@ -44,31 +44,90 @@ function showOrderStatusNotification(orderId, product, oldStatus, newStatus, isE
   
   const icon = isError ? STATUS_ICONS.error : STATUS_ICONS[newStatus] || '📦';
   const title = isError ? 'Order Update Failed' : 'Order Status Changed';
-  const headerBg = isError ? 'linear-gradient(to right, #800000, #d01010)' : 'linear-gradient(to right, #000080, #1084d0)';
+  const headerBg = 'linear-gradient(to right, #000080, #1084d0)';
   
-  popup.innerHTML = `
-    <div class="popup-header" style="background: ${headerBg}">
-      <span>${title}</span>
-      <button class="win95-btn" style="padding: 0 4px; min-width: auto; font-size: 10px;" onclick="this.closest('.order-notification-popup').remove()">×</button>
-    </div>
-    <div class="popup-content">
-      <div class="popup-icon">${icon}</div>
-      <div class="popup-details">
-        <div class="popup-title">${orderId}</div>
-        <div class="popup-message">${product}</div>
-        ${!isError ? `
-        <div class="popup-status-change">
-          <span class="status-${oldStatus}">${oldStatus}</span>
-          <span class="status-arrow">→</span>
-          <span class="status-${newStatus}">${newStatus}</span>
-        </div>
-        ` : '<div class="popup-message" style="color: #800000;">Failed to update order status</div>'}
-      </div>
-    </div>
-    <div class="popup-footer">
-      <button class="win95-btn" onclick="this.closest('.order-notification-popup').remove()">OK</button>
-    </div>
-  `;
+  // Create header
+  const header = document.createElement('div');
+  header.className = 'popup-header';
+  header.style.background = headerBg;
+  
+  const headerTitle = document.createElement('span');
+  headerTitle.textContent = title;
+  header.appendChild(headerTitle);
+  
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'win95-btn';
+  closeBtn.style.cssText = 'padding: 0 4px; min-width: auto; font-size: 10px;';
+  closeBtn.textContent = '×';
+  closeBtn.onclick = function() { popup.remove(); };
+  header.appendChild(closeBtn);
+  
+  popup.appendChild(header);
+  
+  // Create content
+  const content = document.createElement('div');
+  content.className = 'popup-content';
+  
+  const iconDiv = document.createElement('div');
+  iconDiv.className = 'popup-icon';
+  iconDiv.textContent = icon;
+  content.appendChild(iconDiv);
+  
+  const details = document.createElement('div');
+  details.className = 'popup-details';
+  
+  const titleDiv = document.createElement('div');
+  titleDiv.className = 'popup-title';
+  titleDiv.textContent = orderId;
+  details.appendChild(titleDiv);
+  
+  const messageDiv = document.createElement('div');
+  messageDiv.className = 'popup-message';
+  messageDiv.textContent = product;
+  details.appendChild(messageDiv);
+  
+  if (!isError) {
+    const statusChange = document.createElement('div');
+    statusChange.className = 'popup-status-change';
+    
+    const oldStatusSpan = document.createElement('span');
+    oldStatusSpan.className = `status-${oldStatus}`;
+    oldStatusSpan.textContent = oldStatus;
+    statusChange.appendChild(oldStatusSpan);
+    
+    const arrow = document.createElement('span');
+    arrow.className = 'status-arrow';
+    arrow.textContent = '→';
+    statusChange.appendChild(arrow);
+    
+    const newStatusSpan = document.createElement('span');
+    newStatusSpan.className = `status-${newStatus}`;
+    newStatusSpan.textContent = newStatus;
+    statusChange.appendChild(newStatusSpan);
+    
+    details.appendChild(statusChange);
+  } else {
+    const errorMsg = document.createElement('div');
+    errorMsg.className = 'popup-message';
+    errorMsg.style.color = '#800000';
+    errorMsg.textContent = 'Failed to update order status';
+    details.appendChild(errorMsg);
+  }
+  
+  content.appendChild(details);
+  popup.appendChild(content);
+  
+  // Create footer
+  const footer = document.createElement('div');
+  footer.className = 'popup-footer';
+  
+  const okBtn = document.createElement('button');
+  okBtn.className = 'win95-btn';
+  okBtn.textContent = 'OK';
+  okBtn.onclick = function() { popup.remove(); };
+  footer.appendChild(okBtn);
+  
+  popup.appendChild(footer);
   
   container.appendChild(popup);
   
@@ -98,25 +157,68 @@ function showOrderCreatedNotification(orderId, product) {
   const popup = document.createElement('div');
   popup.className = 'order-notification-popup';
   
-  popup.innerHTML = `
-    <div class="popup-header">
-      <span>New Order Created</span>
-      <button class="win95-btn" style="padding: 0 4px; min-width: auto; font-size: 10px;" onclick="this.closest('.order-notification-popup').remove()">×</button>
-    </div>
-    <div class="popup-content">
-      <div class="popup-icon">📦</div>
-      <div class="popup-details">
-        <div class="popup-title">${orderId}</div>
-        <div class="popup-message">${product}</div>
-        <div class="popup-status-change">
-          <span class="status-pending">pending</span>
-        </div>
-      </div>
-    </div>
-    <div class="popup-footer">
-      <button class="win95-btn" onclick="this.closest('.order-notification-popup').remove()">OK</button>
-    </div>
-  `;
+  // Create header
+  const header = document.createElement('div');
+  header.className = 'popup-header';
+  
+  const headerTitle = document.createElement('span');
+  headerTitle.textContent = 'New Order Created';
+  header.appendChild(headerTitle);
+  
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'win95-btn';
+  closeBtn.style.cssText = 'padding: 0 4px; min-width: auto; font-size: 10px;';
+  closeBtn.textContent = '×';
+  closeBtn.onclick = function() { popup.remove(); };
+  header.appendChild(closeBtn);
+  
+  popup.appendChild(header);
+  
+  // Create content
+  const content = document.createElement('div');
+  content.className = 'popup-content';
+  
+  const iconDiv = document.createElement('div');
+  iconDiv.className = 'popup-icon';
+  iconDiv.textContent = '📦';
+  content.appendChild(iconDiv);
+  
+  const details = document.createElement('div');
+  details.className = 'popup-details';
+  
+  const titleDiv = document.createElement('div');
+  titleDiv.className = 'popup-title';
+  titleDiv.textContent = orderId;
+  details.appendChild(titleDiv);
+  
+  const messageDiv = document.createElement('div');
+  messageDiv.className = 'popup-message';
+  messageDiv.textContent = product;
+  details.appendChild(messageDiv);
+  
+  const statusChange = document.createElement('div');
+  statusChange.className = 'popup-status-change';
+  
+  const statusSpan = document.createElement('span');
+  statusSpan.className = 'status-pending';
+  statusSpan.textContent = 'pending';
+  statusChange.appendChild(statusSpan);
+  
+  details.appendChild(statusChange);
+  content.appendChild(details);
+  popup.appendChild(content);
+  
+  // Create footer
+  const footer = document.createElement('div');
+  footer.className = 'popup-footer';
+  
+  const okBtn = document.createElement('button');
+  okBtn.className = 'win95-btn';
+  okBtn.textContent = 'OK';
+  okBtn.onclick = function() { popup.remove(); };
+  footer.appendChild(okBtn);
+  
+  popup.appendChild(footer);
   
   container.appendChild(popup);
   
@@ -589,29 +691,80 @@ async function refreshOrders() {
   const result = await apiCall('GET', '/api/orders');
   const tbody = document.getElementById('orders-table-body');
   
+  // Clear existing rows
+  tbody.innerHTML = '';
+  
   if (result.orders && result.orders.length > 0) {
-    tbody.innerHTML = result.orders.map(order => {
+    result.orders.forEach(order => {
       const user = usersCache.find(u => u.id === order.userId);
       const userName = user ? user.name : order.userId || 'Unknown';
       const nextStatus = getNextStatus(order.status);
       const canProgress = nextStatus !== null;
-      return `
-      <tr>
-        <td>${order.id}</td>
-        <td>${userName}</td>
-        <td>${order.product}</td>
-        <td>${order.quantity}</td>
-        <td><span class="status-${order.status}">${order.status}</span></td>
-        <td>
-          ${canProgress ? `<button class="action-btn" onclick="updateOrderStatus('${order.id}', '${order.product}', '${order.status}', '${nextStatus}')" title="Advance to ${nextStatus}">⏩</button>` : ''}
-          <button class="action-btn" onclick="deleteOrder('${order.id}')">🗑️</button>
-        </td>
-      </tr>
-    `;
-    }).join('');
+      
+      const row = document.createElement('tr');
+      
+      // Order ID
+      const idCell = document.createElement('td');
+      idCell.textContent = order.id;
+      row.appendChild(idCell);
+      
+      // User Name
+      const userCell = document.createElement('td');
+      userCell.textContent = userName;
+      row.appendChild(userCell);
+      
+      // Product
+      const productCell = document.createElement('td');
+      productCell.textContent = order.product;
+      row.appendChild(productCell);
+      
+      // Quantity
+      const quantityCell = document.createElement('td');
+      quantityCell.textContent = order.quantity;
+      row.appendChild(quantityCell);
+      
+      // Status
+      const statusCell = document.createElement('td');
+      const statusSpan = document.createElement('span');
+      statusSpan.className = `status-${order.status}`;
+      statusSpan.textContent = order.status;
+      statusCell.appendChild(statusSpan);
+      row.appendChild(statusCell);
+      
+      // Actions
+      const actionsCell = document.createElement('td');
+      
+      if (canProgress) {
+        const progressBtn = document.createElement('button');
+        progressBtn.className = 'action-btn';
+        progressBtn.textContent = '⏩';
+        progressBtn.title = `Advance to ${nextStatus}`;
+        progressBtn.onclick = function() {
+          updateOrderStatus(order.id, order.product, order.status, nextStatus);
+        };
+        actionsCell.appendChild(progressBtn);
+      }
+      
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'action-btn';
+      deleteBtn.textContent = '🗑️';
+      deleteBtn.onclick = function() {
+        deleteOrder(order.id);
+      };
+      actionsCell.appendChild(deleteBtn);
+      
+      row.appendChild(actionsCell);
+      tbody.appendChild(row);
+    });
     statusEl.textContent = `${result.orders.length} order(s)`;
   } else {
-    tbody.innerHTML = '<tr><td colspan="6" class="empty-message">No orders found. Click "New Order" to create one.</td></tr>';
+    const emptyRow = document.createElement('tr');
+    const emptyCell = document.createElement('td');
+    emptyCell.colSpan = 6;
+    emptyCell.className = 'empty-message';
+    emptyCell.textContent = 'No orders found. Click "New Order" to create one.';
+    emptyRow.appendChild(emptyCell);
+    tbody.appendChild(emptyRow);
     statusEl.textContent = 'No orders';
   }
 }
