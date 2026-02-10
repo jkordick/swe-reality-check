@@ -496,6 +496,41 @@ legend {
 .status-shipped { color: #008000; }
 .status-delivered { color: #008000; font-weight: bold; }
 
+/* Status select dropdown */
+.status-select {
+  background: #ffffff;
+  border: 2px inset #808080;
+  padding: 2px;
+  font-size: 11px;
+  font-family: 'MS Sans Serif', Arial, sans-serif;
+  cursor: pointer;
+}
+
+.status-select:focus {
+  outline: 1px dotted #000000;
+  outline-offset: -3px;
+}
+
+.status-select.status-pending {
+  color: #808000;
+  font-weight: bold;
+}
+
+.status-select.status-processing {
+  color: #0000ff;
+  font-weight: bold;
+}
+
+.status-select.status-shipped {
+  color: #008000;
+  font-weight: bold;
+}
+
+.status-select.status-delivered {
+  color: #008000;
+  font-weight: bold;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 16px;
