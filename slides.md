@@ -10,17 +10,28 @@ flowchart TB
     style Top fill:#4a90d9,stroke:#2d5a87,color:#fff
     style Bottom fill:#e67e22,stroke:#a35516,color:#fff
 ```
+---
+---
+---
+---
+---
+---
+---
 
+### Core use cases:
+- everything that is non-deterministic in the first place aka humans did it "manually"
+    - coding
+    - code reviews
+    - requirement gathering
+    - documentation
 
-
-
-
-
-
-
-
-
-
+---
+---
+---
+---
+---
+---
+---
 ---
 
 ### What is the foundational ground work that needs to be in place for a successful application of agentic AI in software development?
