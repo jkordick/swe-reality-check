@@ -15,8 +15,23 @@
         Start
       </button>
       <div class="taskbar-apps" id="taskbar-apps"></div>
+      <div class="taskbar-notification-indicator" id="notification-indicator" onclick="toggleNotificationHistory()">
+        <span class="notification-bell">🔔</span>
+        <span class="notification-badge" id="notification-badge">0</span>
+      </div>
       <div class="system-tray">
         <span id="clock"></span>
+      </div>
+    </div>
+
+    <!-- Notification History Panel -->
+    <div class="notification-history-panel" id="notification-history">
+      <div class="panel-header">
+        <span>📋 Notifications</span>
+        <button class="win95-btn" style="padding: 1px 6px; min-width: auto;" onclick="clearNotificationHistory()">Clear</button>
+      </div>
+      <div class="panel-content" id="notification-history-content">
+        <div class="notification-history-empty">No notifications yet</div>
       </div>
     </div>
 
