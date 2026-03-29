@@ -290,6 +290,21 @@ function mockApiCall(method, endpoint, data) {
             resolve({ error: 'Not found' });
           }
           return;
+        } else if (method === 'PUT') {
+          if (index !== -1) {
+            mockOrders[index] = { ...mockOrders[index], ...data };
+            resolve({ order: mockOrders[index] });
+          } else {
+            resolve({ error: 'Not found' });
+          }
+          return;
+        } else if (method === 'GET') {
+          if (index !== -1) {
+            resolve({ order: mockOrders[index] });
+          } else {
+            resolve({ error: 'Not found' });
+          }
+          return;
         }
       }
       
@@ -355,7 +370,17 @@ async function refreshOrders() {
         <td>${userName}</td>
         <td>${order.product}</td>
         <td>${order.quantity}</td>
-        <td><span class="status-${order.status}">${order.status}</span></td>
+        <td>
+          <select class="status-select status-${order.status}" 
+                  data-order-id="${order.id}" 
+                  data-current-status="${order.status}"
+                  onchange="updateOrderStatus('${order.id}', this.value, '${order.status}')">
+            <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>pending</option>
+            <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>processing</option>
+            <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>shipped</option>
+            <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>delivered</option>
+          </select>
+        </td>
         <td>
           <button class="action-btn" onclick="deleteOrder('${order.id}')">🗑️</button>
         </td>
@@ -406,9 +431,17 @@ async function createOrder() {
   const statusEl = document.getElementById('orders-status');
   statusEl.textContent = 'Creating order...';
   
-  await apiCall('POST', '/api/orders', { userId, product, quantity: Number(quantity), status });
-  hideNewOrderForm();
-  await refreshOrders();
+  const result = await apiCall('POST', '/api/orders', { userId, product, quantity: Number(quantity), status });
+  
+  if (result.error) {
+    showNotification(`Failed to create order: ${result.error}`, 'error');
+    statusEl.textContent = 'Error creating order';
+  } else {
+    showNotification(`Order ${result.order.id} created: ${product} (Qty: ${quantity}, Status: ${status})`, 'success');
+    statusEl.textContent = 'Order created successfully';
+    hideNewOrderForm();
+    await refreshOrders();
+  }
 }
 
 async function deleteOrder(id) {
@@ -416,7 +449,44 @@ async function deleteOrder(id) {
   if (confirmed) {
     const statusEl = document.getElementById('orders-status');
     statusEl.textContent = 'Deleting order...';
-    await apiCall('DELETE', `/api/orders/${id}`);
+    
+    // Get order details before deletion for notification
+    const orderToDelete = mockOrders.find(o => o.id === id) || 
+                          (MOCK_MODE ? null : await apiCall('GET', `/api/orders/${id}`).then(r => r.order));
+    
+    const result = await apiCall('DELETE', `/api/orders/${id}`);
+    
+    if (result.error) {
+      showNotification(`Failed to delete order: ${result.error}`, 'error');
+      statusEl.textContent = 'Error deleting order';
+    } else {
+      const orderInfo = orderToDelete ? `${orderToDelete.id} (${orderToDelete.product})` : id;
+      showNotification(`Order ${orderInfo} deleted successfully`, 'success');
+      statusEl.textContent = 'Order deleted';
+      await refreshOrders();
+    }
+  }
+}
+
+async function updateOrderStatus(orderId, newStatus, oldStatus) {
+  if (newStatus === oldStatus) {
+    return; // No change
+  }
+  
+  const statusEl = document.getElementById('orders-status');
+  statusEl.textContent = 'Updating order status...';
+  
+  const result = await apiCall('PUT', `/api/orders/${orderId}`, { status: newStatus });
+  
+  if (result.error) {
+    showNotification(`Failed to update order status: ${result.error}`, 'error');
+    statusEl.textContent = 'Error updating order';
+    // Refresh to reset the dropdown to old value
+    await refreshOrders();
+  } else {
+    showNotification(`Order ${orderId} status changed: ${oldStatus} → ${newStatus}`, 'success');
+    statusEl.textContent = 'Order status updated';
+    // Refresh to get latest data
     await refreshOrders();
   }
 }
